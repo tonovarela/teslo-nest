@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource, QueryResult, Repository, ReturningStatementNotSupportedError } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -35,7 +35,7 @@ export class ProductsService {
     const { limit = 50, offset = 0 } = paginationDTO;
     const products = await this.productRepository.find({
       take: limit, skip: offset,
-      relations: {
+      relations: {      
         images: true
       }
     })
@@ -106,8 +106,9 @@ export class ProductsService {
   }
 
   async deleteAllProducts(){
-    const query= this.producImagetRepository.createQueryBuilder('product');
+    const query= this.productRepository.createQueryBuilder('product');
     try {
+      
       return await query.delete().where({}).execute()
     }catch(error){
      this.handleExceptions(error);

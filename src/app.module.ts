@@ -4,12 +4,14 @@ import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { getConfigDB } from 'src/configDB';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [ConfigModule.forRoot(),
   TypeOrmModule.forRoot(getConfigDB()),
     ProductsModule,
-    CommonModule],
+    CommonModule,
+    SeedModule],
   controllers: [],
   providers: [],
 })
