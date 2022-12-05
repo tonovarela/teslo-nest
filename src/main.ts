@@ -15,6 +15,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true
   }))
   await app.listen(process.env.PORT);
-  logger.log(`Servicio usando el puerto${process.env.PORT}`);
+  logger.log(`Servicio usando el puerto :${process.env.PORT}`);
 }
 bootstrap();
