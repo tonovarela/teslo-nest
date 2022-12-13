@@ -6,13 +6,18 @@ import * as bcrypt from 'bcrypt'
 
 
 import { User } from './entities/user.entity';
-import { CreateUserDTO,LoginUserDTO } from './dto';
+import { CreateUserDTO, LoginUserDTO } from './dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
+
 
 
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
+    constructor(@InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+        private jwtService: JwtService) { }
 
     async create(createUserDTO: CreateUserDTO) {
         try {
@@ -20,29 +25,32 @@ export class AuthService {
             const user = await this.userRepository.create({ ...userData, password: bcrypt.hashSync(password, 10) });
             await this.userRepository.save(user);
             delete user.password;
-            return user
+            return {...user ,token: await this.jwtService.sign({id:user.id})}
         } catch (error) {
             this.handleDBError(error);
         }
 
     }
 
-    async login(loginUserDTO:LoginUserDTO) {
+    private getJWT(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
+    }
 
-        const { password,email}= loginUserDTO;
-        const user = await this.userRepository.findOne({where:{email},select:{email:true,password:true}});
-        
-        if (!user){
+    async login(loginUserDTO: LoginUserDTO) {
+        const { password, email } = loginUserDTO;
+        const user = await this.userRepository.findOne({ where: { email }, select: {   email: true, password: true ,id:true} });
+
+        if (!user) {
             throw new UnauthorizedException('Emails not valid')
         }
         if (!bcrypt.compareSync(password, user.password)) {
             throw new UnauthorizedException('Password not valid')
         }
-        return user;
-        //TODO: retorna JsonWebToken
+        return {...user, token: this.getJWT({id:user.id})};
+    
+    }
 
-    } 
-            
 
     private handleDBError(err: any): never {
         if (err.code === "23505") {

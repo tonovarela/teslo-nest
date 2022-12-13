@@ -6,11 +6,12 @@ import { User } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStategy } from './strategies/jwt.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
-  imports: [TypeOrmModule.forFeature([User]),
+  providers: [AuthService,JwtStategy],
+  imports: [ConfigModule,TypeOrmModule.forFeature([User]),
   PassportModule.register({ defaultStrategy: 'jwt' }),
   JwtModule.registerAsync({
     imports: [ConfigModule],
@@ -31,6 +32,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     //   }
     // })
   ],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule,JwtStategy,PassportModule,JwtModule]
 })
 export class AuthModule { }
