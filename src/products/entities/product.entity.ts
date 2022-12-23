@@ -1,5 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/auth/entities/user.entity";
+import { BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from ".";
+
 
 
 
@@ -36,8 +38,10 @@ export class Product {
     tags: string[];
     //tags
     //images
-    @OneToMany(() => ProductImage, (productImage) => productImage.product, { cascade: true,eager:true })
+    @OneToMany(() => ProductImage, (productImage) => productImage.product, { cascade: true, eager: true } )
     images?: ProductImage[];
+
+    @ManyToOne(() => User, (user) => user.product, { eager: true, cascade: true }) user: User;
 
     @BeforeUpdate()
     checkSlugUpdate() {

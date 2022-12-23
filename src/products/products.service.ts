@@ -9,6 +9,7 @@ import { PaginationDTO } from 'src/common/dto/pagination.dto';
 
 import { validate as isUUID } from 'uuid';
 import { ProductImage } from './entities/product-image.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 
 @Injectable()
@@ -19,10 +20,16 @@ export class ProductsService {
     @InjectRepository(ProductImage) private readonly producImagetRepository: Repository<ProductImage>,
     private readonly dataSource: DataSource
   ) { }
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
+    console.log(user);
     const { images = [], ...productDetails } = createProductDto;
     try {
-      const producto = this.productRepository.create({ ...productDetails, images: images.map(image => this.producImagetRepository.create({ url: image })) });
+      const producto = this.productRepository.create({
+        ...productDetails,
+        user,
+        images: images.map(image => this.producImagetRepository.create({ url: image })        
+        )
+      });
       await this.productRepository.save(producto);
       return { ...producto, images: images };
     }
@@ -35,7 +42,7 @@ export class ProductsService {
     const { limit = 10, offset = 0 } = paginationDTO;
     const products = await this.productRepository.find({
       take: limit, skip: offset,
-      relations: {      
+      relations: {
         images: true
       }
     })
@@ -60,7 +67,7 @@ export class ProductsService {
 
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto,user: User) {
     const { images, ...toUpdate } = updateProductDto;
     const product = await this.productRepository.preload({ id, ...toUpdate })
     if (!product)
@@ -77,6 +84,7 @@ export class ProductsService {
         product.images = await this.producImagetRepository.findBy({ product: { id } });
 
       }
+      product.user= user;
       await queryRunner.manager.save(product);
 
       await queryRunner.commitTransaction();
@@ -86,7 +94,7 @@ export class ProductsService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       this.handleExceptions(error);
-    }    
+    }
 
   }
   async remove(id: string) {
@@ -105,14 +113,14 @@ export class ProductsService {
     throw new InternalServerErrorException(error)
   }
 
-  async deleteAllProducts(){
-    const query= this.productRepository.createQueryBuilder('product');
-    try {
-      
+  async deleteAllProducts() {
+    const query = this.productRepository.createQueryBuilder('product');
+    try {
+
       return await query.delete().where({}).execute()
-    }catch(error){
-     this.handleExceptions(error);
+    } catch (error) {
+      this.handleExceptions(error);
     }
-    
+
   }
 }
