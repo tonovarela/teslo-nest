@@ -2,6 +2,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGenerated
 import { ProductImage } from ".";
 
 
+
 @Entity('products')
 export class Product {
     @PrimaryGeneratedColumn('uuid')
@@ -47,8 +48,17 @@ export class Product {
             .replaceAll("'", '');
     }
 
+    // @BeforeUpdate(){
+    //     if (!this.slug) {
+    //         this.slug = this.title;
+    //     }
 
-    @BeforeInsert()
+    //     this.slug = this.slug
+    //         .toLowerCase()
+    //         .replaceAll(' ', '_')
+    //         .replaceAll("'", '')
+    // }
+
     checkSlugInsert() {
         if (!this.slug) {
             this.slug = this.title;
