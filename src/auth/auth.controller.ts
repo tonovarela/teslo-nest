@@ -8,11 +8,10 @@ import { CreateUserDTO, LoginUserDTO } from './dto';
 import { User } from './entities/user.entity';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { ValidRoles } from 'src/auth/interfaces';
-
-
-
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags("Auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 

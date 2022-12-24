@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors, BadRequestException, Res, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Post,  Param, UploadedFile, UseInterceptors, BadRequestException, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { createReadStream } from 'fs';
 import { diskStorage } from 'multer';
 import { FilesService } from './files.service';
@@ -10,6 +11,7 @@ import { fileFilter, fileNamer } from './helpers';
 
 
 @Controller('files')
+@ApiTags("Files")
 export class FilesController {
   constructor(private readonly filesService: FilesService,private configService:ConfigService) { }
 
@@ -18,9 +20,7 @@ export class FilesController {
   findProductImage(@Param('imageName') imageName: string) {
     console.log(imageName);
     const path= this.filesService.getStaticProductImage(imageName);
-    console.log(path);
     const stream = createReadStream(path);
-
     return new StreamableFile(stream);
 
   }

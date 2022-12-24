@@ -1,4 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
+
+
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -8,12 +12,15 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { Auth } from './../auth/decorators/auth.decorator';
 import { GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
-
+import { Product } from './entities';
+@ApiTags('Products')
 @Controller('products')
-
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @ApiResponse({status:201,description:"Producto creado",type:Product})
+  @ApiResponse({status:401,description:"No autorizado"})
+  @ApiResponse({status:400,description:"Bad  request"})  
   @Auth(ValidRoles.user)  
   @Post()
   create(@Body() createProductDto: CreateProductDto,@GetUser() user:User) {

@@ -27,7 +27,7 @@ export class ProductsService {
       const producto = this.productRepository.create({
         ...productDetails,
         user,
-        images: images.map(image => this.producImagetRepository.create({ url: image })        
+        images: images.map(image => this.producImagetRepository.create({ url: image })
         )
       });
       await this.productRepository.save(producto);
@@ -67,14 +67,13 @@ export class ProductsService {
 
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto,user: User) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     const { images, ...toUpdate } = updateProductDto;
     const product = await this.productRepository.preload({ id, ...toUpdate })
     if (!product)
       throw new NotFoundException(`Product with ${id} not found`);
     const queryRunner = this.dataSource.createQueryRunner();
     try {
-
       await queryRunner.connect();
       await queryRunner.startTransaction();
       if (images) {
@@ -84,7 +83,7 @@ export class ProductsService {
         product.images = await this.producImagetRepository.findBy({ product: { id } });
 
       }
-      product.user= user;
+      product.user = user;
       await queryRunner.manager.save(product);
 
       await queryRunner.commitTransaction();
